@@ -1,11 +1,14 @@
-const CatMovementIntervalInMs = 50
-const CatStopsPxFromTheCursor = 100
+const CatMovementIntervalInMs = 50;
+const CatMovementPerIntervalInPx = 1;
+const CatStopsPxFromTheCursor = 0;
+
+const CatHeight = 50;
+const CatWidth = 50;
 
 var XCord = 0;
 var YCord = 0;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
-
 
 (function() {
     document.onmousemove = handleMouseMove;
@@ -41,8 +44,8 @@ function CreateACat() {
 
     div.className = "cat";
     div.style = "background-color: red;";
-    div.style.width = "50px";
-    div.style.height = "50px";
+    div.style.width = CatHeight + "px";
+    div.style.height = CatWidth + "px";
     div.style.position = 'absolute';
     document.body.appendChild(div);
 }
@@ -51,16 +54,18 @@ function CreateACat() {
     while (true) {
         for (let catDiv of document.getElementsByClassName("cat")) {
             let rect = catDiv.getBoundingClientRect();
-            if (XCord > rect.x && XCord - rect.x >= CatStopsPxFromTheCursor) {
-                catDiv.style.left = (rect.x + 1) + 'px';
-            } else if (XCord < rect.x && rect.x - XCord >= CatStopsPxFromTheCursor) {
-                catDiv.style.left = (rect.x - 1) + 'px';
+            let centerX = rect.x + (CatWidth/2);
+            let centerY = rect.y + (CatHeight/2);
+            if (XCord > centerX && XCord - centerX >= CatStopsPxFromTheCursor) {
+                catDiv.style.left = (rect.x + CatMovementPerIntervalInPx) + 'px';
+            } else if (XCord < centerX && centerX - XCord >= CatStopsPxFromTheCursor) {
+                catDiv.style.left = (rect.x - CatMovementPerIntervalInPx) + 'px';
             }
 
-            if (YCord > rect.y && YCord - rect.y >= CatStopsPxFromTheCursor) {
-                catDiv.style.top = (rect.y + 1) + 'px';
-            } else if (YCord < rect.y && rect.y - YCord >= CatStopsPxFromTheCursor) {
-                catDiv.style.top = (rect.y - 1) + 'px';
+            if (YCord > centerY && YCord - centerY >= CatStopsPxFromTheCursor) {
+                catDiv.style.top = (rect.y + CatMovementPerIntervalInPx) + 'px';
+            } else if (YCord < centerY && centerY - YCord >= CatStopsPxFromTheCursor) {
+                catDiv.style.top = (rect.y - CatMovementPerIntervalInPx) + 'px';
             }
         }
         await delay(CatMovementIntervalInMs);
