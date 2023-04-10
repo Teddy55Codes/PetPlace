@@ -68,25 +68,40 @@ function getXYSpeed(currentX, currentY, destinationX, destinationY) {
     return {RationX, RationY};
 }
 
+function BoundingBoxCollision(rect1, rect2) {
+    return ((rect2.top > rect1.top && rect2.top < rect1.bottom) ||
+            rect2.bottom < rect1.bottom && rect2.bottom > rect1.top) &&
+        ((rect2.left > rect1.left && rect2.left < rect1.right) ||
+            rect2.right < rect1.right && rect2.right > rect1.left)
+}
+
 function TryMove(currentX, currentY, targetX, targetY) {
     let currentRect = new DOMRect(currentX, currentY, CatWidth, CatHeight);
-    let futureRect = new DOMRect(targetX.substring(0, targetX.length - 2), targetY.substring(0, targetY.length - 2), CatWidth, CatHeight)
+    let futureRectXY = new DOMRect(targetX, targetY, CatWidth, CatHeight)
+    let futureRectX = new DOMRect(targetX, currentY, CatWidth, CatHeight)
+    let futureRectY = new DOMRect(targetX, targetY, CatWidth, CatHeight)
+
     let MoveX = targetX;
     let MoveY = targetY;
+    let hasCollision = false;
     for (let catDiv of document.getElementsByClassName("cat")) {
         let rect = catDiv.getBoundingClientRect();
         if (rect.x === currentRect.x && rect.y === currentRect.y) continue;
-        if (((futureRect.top > rect.top && futureRect.top < rect.bottom) ||
-            futureRect.bottom < rect.bottom && futureRect.bottom > rect.top) &&
-            ((futureRect.left > rect.left && futureRect.left < rect.right) ||
-                futureRect.right < rect.right && futureRect.right > rect.left)) {
-            MoveY = currentRect.top+(CatHeight/2);
-            MoveX = currentRect.left+(CatWidth/2);
+        if (BoundingBoxCollision(rect, futureRectX)) {
+            MoveX = null;
+            hasCollision = true;
+        }
+        if (BoundingBoxCollision(rect, futureRectY)) {
+            MoveY = null;
+            hasCollision = true;
+        }
+        if (!hasCollision && BoundingBoxCollision(rect, futureRectXY)) {
+            MoveY = null;
+            MoveX = null;
+            hasCollision = true;
         }
     }
-    return {MoveX, MoveY};
-
-
+    return {MoveX, MoveY, hasCollision};
 }
 
 (async function() {
@@ -101,19 +116,20 @@ function TryMove(currentX, currentY, targetX, targetY) {
 
             if ((Math.abs(XCord - centerX) + Math.abs(YCord - centerY)) < CatStopsPxFromTheCursor) continue;
             if (XCord > centerX) {
-                FutureX = (rect.x + (CatMovementPerIntervalInPx*RationX)) + 'px';
+                FutureX = (rect.x + (CatMovementPerIntervalInPx*RationX));
             } else if (XCord < centerX) {
-                FutureX = (rect.x - (CatMovementPerIntervalInPx*RationX)) + 'px';
+                FutureX = (rect.x - (CatMovementPerIntervalInPx*RationX));
             }
             if (YCord > centerY) {
-                FutureY = (rect.y + (CatMovementPerIntervalInPx*RationY)) + 'px';
+                FutureY = (rect.y + (CatMovementPerIntervalInPx*RationY));
             } else if (YCord < centerY) {
-                FutureY = (rect.y - (CatMovementPerIntervalInPx*RationY)) + 'px';
+                FutureY = (rect.y - (CatMovementPerIntervalInPx*RationY));
             }
 
             let {MoveX, MoveY} = TryMove(rect.x, rect.y, FutureX, FutureY)
-            catDiv.style.left = MoveX;
-            catDiv.style.top = MoveY;
+
+            if (MoveX != null) catDiv.style.left = MoveX + "px";
+            if (MoveY != null) catDiv.style.top = MoveY + "px";
         }
         await delay(CatMovementIntervalInMs);
     }
