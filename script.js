@@ -64,7 +64,7 @@ class Pet {
                 div.remove();
                 return null;
             }
-            let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth), getRandom(0, innerHeight))
+            let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth), getRandom(0, window.innerHeight))
             isColliding = hasCollision;
             SpawnPositionX = MoveX;
             SpawnPositionY = MoveY;
