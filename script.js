@@ -15,9 +15,10 @@ let YCord = 0;
 
 let Pets = [];
 
-const CatMovingStates = ["resources/CatStanding.png", "resources/CatMoving.png"];
-const CatRestingStates = ["resources/CatResting.png"];
-const CatPettingAnimationSteps = ["resources/CatRestingWithHeart.png"];
+const CatMovingStates = ["resources/cat/CatStanding.png", "resources/cat/CatMoving.png"];
+const CatRestingStates = ["resources/cat/CatResting.png"];
+const CatPettingAnimationSteps = ["resources/cat/CatRestingWithHeart.png"];
+
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
