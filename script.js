@@ -1,9 +1,10 @@
 const CatMovementIntervalInMs = 10;
+const CatNonMoveIntervalsUntilRest = 50;
 const CatMovementPerIntervalInPx = 1;
 const CatStopsPxFromTheCursor = 50;
 const CatAnimationSlowdown = 10;
 const MaxSpawnRetries = 100;
-const MinSpeedFractionForAnimation = 0.1;
+const MinSpeedFractionForAnimation = 0.2;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -13,14 +14,15 @@ let YCord = 0;
 
 let Pets = [];
 
-const PetMovingStates = ["./resources/CatStanding.png", "./resources/CatMoving.png"]
+const CatMovingStates = ["./resources/CatStanding.png", "./resources/CatMoving.png"];
+const CatRestingStates = ["./resources/CatResting.png"];
 
 class Pet {
     constructor() {
         const div = document.createElement("div");
         this.imgState = 0;
         this.animationStepper = 0;
-        this.animationSlowdown = CatAnimationSlowdown;
+        this.currentNonMovementIntervals = 0;
 
         div.className = "cat";
         div.style.width = CatHeight + "px";
@@ -46,7 +48,7 @@ class Pet {
         div.style.top = SpawnPositionY + "px";
         let img = document.createElement("img");
         img.className = "catImage";
-        img.src = PetMovingStates[0];
+        img.src = CatMovingStates[0];
         div.appendChild(img);
         this.div = div;
     }
@@ -58,16 +60,23 @@ class Pet {
     }
 
     Animate() {
-        if (this.animationStepper % this.animationSlowdown === 0) {
+        if (this.animationStepper % CatAnimationSlowdown === 0) {
+            this.currentNonMovementIntervals = 0;
             this.imgState++;
-            this.div.getElementsByClassName("catImage")[0].src = PetMovingStates[this.imgState % PetMovingStates.length];
+            this.div.getElementsByClassName("catImage")[0].src = CatMovingStates[this.imgState % CatMovingStates.length];
         }
         this.animationStepper++;
     }
 
     StopMoveAnimation() {
+        this.currentNonMovementIntervals++
         this.imgState = 0;
-        this.div.getElementsByClassName("catImage")[0].src = PetMovingStates[0];
+        if (this.currentNonMovementIntervals >= CatNonMoveIntervalsUntilRest) {
+            this.div.getElementsByClassName("catImage")[0].src = CatRestingStates[0];
+        } else {
+            this.div.getElementsByClassName("catImage")[0].src = CatMovingStates[0];
+        }
+        console.log(this.currentNonMovementIntervals)
     }
 }
 
@@ -196,10 +205,10 @@ function TryMove(currentX, currentY, targetX, targetY) {
             }
 
             let {MoveX, MoveY} = TryMove(rect.x, rect.y, FutureX, FutureY)
+            let IsMovingX = MoveX != null && Math.abs(catDiv.style.left.substring(0, catDiv.style.left.length - 2) - MoveX) > (CatMovementPerIntervalInPx * MinSpeedFractionForAnimation);
+            let IsMovingY = MoveY != null && Math.abs(catDiv.style.top.substring(0, catDiv.style.top.length - 2) - MoveY) > (CatMovementPerIntervalInPx * MinSpeedFractionForAnimation);
 
-            if ((MoveX != null || MoveY != null) &&
-                !(Math.abs(catDiv.style.left.substring(0, catDiv.style.left.length - 2) - MoveX) < (CatMovementPerIntervalInPx*MinSpeedFractionForAnimation) ||
-                    Math.abs(catDiv.style.top.substring(0, catDiv.style.top.length - 2) - MoveY) < (CatMovementPerIntervalInPx*MinSpeedFractionForAnimation))) {
+            if (IsMovingX || IsMovingY) {
                 pet.Animate();
             } else {
                 pet.StopMoveAnimation();
