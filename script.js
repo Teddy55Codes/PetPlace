@@ -69,6 +69,10 @@ function CreateACat() {
     }
     div.style.left = SpawnPositionX + "px";
     div.style.top = SpawnPositionY + "px";
+    let img = document.createElement("img");
+    img.className = "catImage";
+    img.src = "./resources/CatStanding.png";
+    div.appendChild(img);
 }
 
 function getXYSpeed(currentX, currentY, destinationX, destinationY) {
