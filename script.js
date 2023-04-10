@@ -39,6 +39,10 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
     }
 })();
 
+function getRandom(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
 function CreateACat() {
     const div = document.createElement("div");
 
@@ -48,6 +52,23 @@ function CreateACat() {
     div.style.height = CatWidth + "px";
     div.style.position = 'absolute';
     document.body.appendChild(div);
+    let isColliding = true;
+    let SpawnPositionX;
+    let SpawnPositionY;
+    let iteration = 0;
+    while (isColliding) {
+        if (iteration >= 100) {
+            div.remove();
+            return;
+        }
+        let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth), getRandom(0, innerHeight))
+        isColliding = hasCollision;
+        SpawnPositionX = MoveX;
+        SpawnPositionY = MoveY;
+        iteration++;
+    }
+    div.style.left = SpawnPositionX + "px";
+    div.style.top = SpawnPositionY + "px";
 }
 
 function getXYSpeed(currentX, currentY, destinationX, destinationY) {
