@@ -8,6 +8,49 @@ const CatWidth = 50;
 let XCord = 0;
 let YCord = 0;
 
+let Pets = [];
+
+class Pet {
+    constructor() {
+        const div = document.createElement("div");
+
+        div.className = "cat";
+        div.style = "background-color: red;";
+        div.style.width = CatHeight + "px";
+        div.style.height = CatWidth + "px";
+        div.style.position = 'absolute';
+        document.body.appendChild(div);
+        let isColliding = true;
+        let SpawnPositionX;
+        let SpawnPositionY;
+        let iteration = 0;
+        while (isColliding) {
+            if (iteration >= 100) {
+                div.remove();
+                return null;
+            }
+            let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth), getRandom(0, innerHeight))
+            isColliding = hasCollision;
+            SpawnPositionX = MoveX;
+            SpawnPositionY = MoveY;
+            iteration++;
+        }
+        div.style.left = SpawnPositionX + "px";
+        div.style.top = SpawnPositionY + "px";
+        let img = document.createElement("img");
+        img.className = "catImage";
+        img.src = "./resources/CatStanding.png";
+        div.appendChild(img);
+        this.div = div;
+    }
+    get divElement() {
+        return this.div;
+    }
+    set divElement(div) {
+        this.div = div;
+    }
+}
+
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 (function() {
@@ -44,35 +87,8 @@ function getRandom(min, max) {
 }
 
 function CreateACat() {
-    const div = document.createElement("div");
-
-    div.className = "cat";
-    div.style = "background-color: red;";
-    div.style.width = CatHeight + "px";
-    div.style.height = CatWidth + "px";
-    div.style.position = 'absolute';
-    document.body.appendChild(div);
-    let isColliding = true;
-    let SpawnPositionX;
-    let SpawnPositionY;
-    let iteration = 0;
-    while (isColliding) {
-        if (iteration >= 100) {
-            div.remove();
-            return;
-        }
-        let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth), getRandom(0, innerHeight))
-        isColliding = hasCollision;
-        SpawnPositionX = MoveX;
-        SpawnPositionY = MoveY;
-        iteration++;
-    }
-    div.style.left = SpawnPositionX + "px";
-    div.style.top = SpawnPositionY + "px";
-    let img = document.createElement("img");
-    img.className = "catImage";
-    img.src = "./resources/CatStanding.png";
-    div.appendChild(img);
+    let pet = new Pet();
+    if (pet != null) Pets.push(pet);
 }
 
 function getXYSpeed(currentX, currentY, destinationX, destinationY) {
@@ -109,7 +125,8 @@ function TryMove(currentX, currentY, targetX, targetY) {
     let MoveX = targetX;
     let MoveY = targetY;
     let hasCollision = false;
-    for (let catDiv of document.getElementsByClassName("cat")) {
+    for (let pet of Pets) {
+        let catDiv = pet.divElement;
         let rect = catDiv.getBoundingClientRect();
         if (rect.x === currentRect.x && rect.y === currentRect.y) continue;
         if (BoundingBoxCollision(rect, futureRectX)) {
@@ -131,7 +148,8 @@ function TryMove(currentX, currentY, targetX, targetY) {
 
 (async function() {
     while (true) {
-        for (let catDiv of document.getElementsByClassName("cat")) {
+        for (let pet of Pets) {
+            let catDiv = pet.divElement;
             let rect = catDiv.getBoundingClientRect();
             let centerX = rect.x + (CatWidth/2);
             let centerY = rect.y + (CatHeight/2);
