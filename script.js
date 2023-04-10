@@ -144,6 +144,15 @@ class Pet {
     }
 })();
 
+// generating grass on new free space
+(function() {
+    window.onresize = handleResize;
+
+    async function handleResize(event) {
+        CreateGrass();
+    }
+})();
+
 function getRandom(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -209,18 +218,46 @@ function TryMove(currentX, currentY, targetX, targetY) {
     return {MoveX, MoveY, hasCollision};
 }
 
-// grass spawn
-(async function() {
-    for (let i = 0; i < Math.round(window.innerWidth*window.innerHeight/PixelsPerGrassPatch); i++) {
+function CreateGrass() {
+    let grassDiv = document.getElementById("GrassGenerated");
+    let grassDivHeight = Number(grassDiv.style.height.substring(0, grassDiv.style.height.length-2));
+    let grassDivWidth = Number(grassDiv.style.width.substring(0, grassDiv.style.width.length-2));
+    if (grassDivHeight >= window.innerHeight && grassDivWidth >= window.innerWidth) return;
+
+    for (let i = 0; i < Math.round((window.innerWidth*window.innerHeight - grassDivHeight*grassDivWidth)/PixelsPerGrassPatch); i++) {
         let img = document.createElement("img");
         document.body.appendChild(img);
         img.className = "grassPatch";
-        img.style.right = getRandom(0, window.innerWidth) + "px";
-        img.style.bottom = getRandom(0, window.innerHeight) + "px";
         img.style.position = "absolute";
-        let tmp =  Math.round(getRandom(0, GrassTextures.length-1));
-        img.src = GrassTextures[tmp];
+        img.src = GrassTextures[Math.round(getRandom(0, GrassTextures.length - 1))];
+        let IsUsedSpace = true;
+        let randomWidth;
+        let randomHeight;
+        while (IsUsedSpace) {
+            randomWidth = getRandom(0, window.innerWidth);
+            randomHeight = getRandom(0, window.innerHeight);
+            if (grassDivHeight < randomHeight || grassDivWidth < randomWidth) IsUsedSpace = false;
+        }
+        img.style.bottom = randomHeight + "px";
+        img.style.right = randomWidth + "px";
     }
+
+    if (window.innerHeight > grassDivHeight) grassDiv.style.height = window.innerHeight + "px";
+    if (window.innerHeight > grassDivWidth) grassDiv.style.width = window.innerWidth + "px";
+}
+
+// grass initial spawn
+(async function() {
+    let div = document.createElement("div");
+    div.id = "GrassGenerated"
+    div.style.position = "absolute";
+    div.style.height = "0px";
+    div.style.width = "0px";
+    div.style.bottom = "0px";
+    div.style.right = "0px";
+    div.style.zIndex = "-1";
+    document.body.appendChild(div);
+    CreateGrass();
 })();
 
 // pet movement loop
