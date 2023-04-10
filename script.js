@@ -140,7 +140,7 @@ function TryMove(currentX, currentY, targetX, targetY) {
     let currentRect = new DOMRect(currentX, currentY, CatWidth, CatHeight);
     let futureRectXY = new DOMRect(targetX, targetY, CatWidth, CatHeight)
     let futureRectX = new DOMRect(targetX, currentY, CatWidth, CatHeight)
-    let futureRectY = new DOMRect(targetX, targetY, CatWidth, CatHeight)
+    let futureRectY = new DOMRect(currentX, targetY, CatWidth, CatHeight)
 
     let MoveX = targetX;
     let MoveY = targetY;
@@ -149,6 +149,7 @@ function TryMove(currentX, currentY, targetX, targetY) {
         let catDiv = pet.divElement;
         let rect = catDiv.getBoundingClientRect();
         if (rect.x === currentRect.x && rect.y === currentRect.y) continue;
+
         if (BoundingBoxCollision(rect, futureRectX)) {
             MoveX = null;
             hasCollision = true;
