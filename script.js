@@ -3,6 +3,7 @@ const CatMovementPerIntervalInPx = 1;
 const CatStopsPxFromTheCursor = 50;
 const CatAnimationSlowdown = 10;
 const MaxSpawnRetries = 100;
+const MinSpeedFractionForAnimation = 0.1;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -22,7 +23,6 @@ class Pet {
         this.animationSlowdown = CatAnimationSlowdown;
 
         div.className = "cat";
-        div.style = "background-color: red;";
         div.style.width = CatHeight + "px";
         div.style.height = CatWidth + "px";
         div.style.position = 'absolute';
@@ -196,12 +196,17 @@ function TryMove(currentX, currentY, targetX, targetY) {
             }
 
             let {MoveX, MoveY} = TryMove(rect.x, rect.y, FutureX, FutureY)
+
+            if ((MoveX != null || MoveY != null) &&
+                !(Math.abs(catDiv.style.left.substring(0, catDiv.style.left.length - 2) - MoveX) < (CatMovementPerIntervalInPx*MinSpeedFractionForAnimation) ||
+                    Math.abs(catDiv.style.top.substring(0, catDiv.style.top.length - 2) - MoveY) < (CatMovementPerIntervalInPx*MinSpeedFractionForAnimation))) {
+                pet.Animate();
+            } else {
+                pet.StopMoveAnimation();
+            }
+
             if (MoveX != null) catDiv.style.left = MoveX + "px";
             if (MoveY != null) catDiv.style.top = MoveY + "px";
-
-            if (MoveX != null || MoveY != null) {
-                pet.Animate();
-            }
         }
         await delay(CatMovementIntervalInMs);
     }
