@@ -52,9 +52,11 @@ class Pet {
         div.appendChild(img);
         this.div = div;
     }
+
     get divElement() {
         return this.div;
     }
+
     set divElement(div) {
         this.div = div;
     }
@@ -76,7 +78,10 @@ class Pet {
         } else {
             this.div.getElementsByClassName("catImage")[0].src = CatMovingStates[0];
         }
-        console.log(this.currentNonMovementIntervals)
+    }
+
+    EvaluateDirection(PetX, PetY, CursorX, CursorY) {
+        this.div.getElementsByClassName("catImage")[0].style.transform = (PetX - CursorX) > 0  ? "" : "scaleX(-1)";
     }
 }
 
@@ -186,6 +191,8 @@ function TryMove(currentX, currentY, targetX, targetY) {
             let {RationX, RationY} = getXYSpeed(centerX, centerY, XCord, YCord);
             let FutureX;
             let FutureY;
+
+            pet.EvaluateDirection(centerX, centerY, XCord, YCord);
 
             if ((Math.abs(XCord - centerX) + Math.abs(YCord - centerY)) < CatStopsPxFromTheCursor)
             {
