@@ -1,10 +1,11 @@
 const CatMovementIntervalInMs = 10;
 const CatNonMoveIntervalsUntilRest = 50;
 const CatMovementPerIntervalInPx = 1;
-const CatStopsPxFromTheCursor = 50;
+const CatStopsPxFromTheCursor = 100;
 const CatAnimationSlowdown = 10;
 const MaxSpawnRetries = 100;
 const MinSpeedFractionForAnimation = 0.2;
+const AnimationSpeedInMs = 1000;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -14,10 +15,35 @@ let YCord = 0;
 
 let Pets = [];
 
-const CatMovingStates = ["./resources/CatStanding.png", "./resources/CatMoving.png"];
-const CatRestingStates = ["./resources/CatResting.png"];
+const CatMovingStates = ["resources/CatStanding.png", "resources/CatMoving.png"];
+const CatRestingStates = ["resources/CatResting.png"];
+const CatPettingAnimationSteps = ["resources/CatRestingWithHeart.png"];
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+function SubstringOccursInStrings(substring, array) {
+    for (const arrayString of array) {
+        if (substring.includes(arrayString)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 class Pet {
+    async OnPetting() {
+        if (SubstringOccursInStrings(this.div.getElementsByClassName("catImage")[0].src, CatRestingStates)) {
+            let beforeState = this.div.getElementsByClassName("catImage")[0].src;
+            for (const image of CatPettingAnimationSteps) {
+                this.div.getElementsByClassName("catImage")[0].src = image;
+                await delay(AnimationSpeedInMs);
+            }
+            if (SubstringOccursInStrings(this.div.getElementsByClassName("catImage")[0].src, [CatPettingAnimationSteps[CatPettingAnimationSteps.length-1]])) {
+                this.div.getElementsByClassName("catImage")[0].src = beforeState;
+            }
+        }
+    }
+
     constructor() {
         const div = document.createElement("div");
         this.imgState = 0;
@@ -49,6 +75,7 @@ class Pet {
         let img = document.createElement("img");
         img.className = "catImage";
         img.src = CatMovingStates[0];
+        img.addEventListener("click", this.OnPetting.bind(this), false)
         div.appendChild(img);
         this.div = div;
     }
@@ -74,7 +101,7 @@ class Pet {
         this.currentNonMovementIntervals++
         this.imgState = 0;
         if (this.currentNonMovementIntervals >= CatNonMoveIntervalsUntilRest) {
-            this.div.getElementsByClassName("catImage")[0].src = CatRestingStates[0];
+            if (SubstringOccursInStrings(this.div.getElementsByClassName("catImage")[0].src, CatMovingStates)) this.div.getElementsByClassName("catImage")[0].src = CatRestingStates[0];
         } else {
             this.div.getElementsByClassName("catImage")[0].src = CatMovingStates[0];
         }
@@ -84,8 +111,6 @@ class Pet {
         this.div.getElementsByClassName("catImage")[0].style.transform = (PetX - CursorX) > 0  ? "" : "scaleX(-1)";
     }
 }
-
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 (function() {
     document.onmousemove = handleMouseMove;
@@ -227,4 +252,3 @@ function TryMove(currentX, currentY, targetX, targetY) {
         await delay(CatMovementIntervalInMs);
     }
 })();
-
