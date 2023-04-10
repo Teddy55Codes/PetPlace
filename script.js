@@ -6,6 +6,7 @@ const CatAnimationSlowdown = 10;
 const MaxSpawnRetries = 100;
 const MinSpeedFractionForAnimation = 0.2;
 const AnimationSpeedInMs = 1000;
+const PixelsPerGrassPatch = 3000;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -19,6 +20,7 @@ const CatMovingStates = ["resources/cat/CatStanding.png", "resources/cat/CatMovi
 const CatRestingStates = ["resources/cat/CatResting.png"];
 const CatPettingAnimationSteps = ["resources/cat/CatRestingWithHeart.png"];
 
+const GrassTextures = ["resources/environment/Grass1.png", "resources/environment/Grass2.png"];
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -99,7 +101,7 @@ class Pet {
     }
 
     StopMoveAnimation() {
-        this.currentNonMovementIntervals++
+        this.currentNonMovementIntervals++;
         this.imgState = 0;
         if (this.currentNonMovementIntervals >= CatNonMoveIntervalsUntilRest) {
             if (SubstringOccursInStrings(this.div.getElementsByClassName("catImage")[0].src, CatMovingStates)) this.div.getElementsByClassName("catImage")[0].src = CatRestingStates[0];
@@ -173,14 +175,14 @@ function BoundingBoxCollision(rect1, rect2) {
     return ((rect2.top >= rect1.top && rect2.top <= rect1.bottom) ||
             rect2.bottom <= rect1.bottom && rect2.bottom >= rect1.top) &&
         ((rect2.left >= rect1.left && rect2.left <= rect1.right) ||
-            rect2.right <= rect1.right && rect2.right >= rect1.left)
+            rect2.right <= rect1.right && rect2.right >= rect1.left);
 }
 
 function TryMove(currentX, currentY, targetX, targetY) {
     let currentRect = new DOMRect(currentX, currentY, CatWidth, CatHeight);
-    let futureRectXY = new DOMRect(targetX, targetY, CatWidth, CatHeight)
-    let futureRectX = new DOMRect(targetX, currentY, CatWidth, CatHeight)
-    let futureRectY = new DOMRect(currentX, targetY, CatWidth, CatHeight)
+    let futureRectXY = new DOMRect(targetX, targetY, CatWidth, CatHeight);
+    let futureRectX = new DOMRect(targetX, currentY, CatWidth, CatHeight);
+    let futureRectY = new DOMRect(currentX, targetY, CatWidth, CatHeight);
 
     let MoveX = targetX;
     let MoveY = targetY;
@@ -207,6 +209,21 @@ function TryMove(currentX, currentY, targetX, targetY) {
     return {MoveX, MoveY, hasCollision};
 }
 
+// grass spawn
+(async function() {
+    for (let i = 0; i < Math.round(window.innerWidth*window.innerHeight/PixelsPerGrassPatch); i++) {
+        let img = document.createElement("img");
+        document.body.appendChild(img);
+        img.className = "grassPatch";
+        img.style.right = getRandom(0, window.innerWidth) + "px";
+        img.style.bottom = getRandom(0, window.innerHeight) + "px";
+        img.style.position = "absolute";
+        let tmp =  Math.round(getRandom(0, GrassTextures.length-1));
+        img.src = GrassTextures[tmp];
+    }
+})();
+
+// pet movement loop
 (async function() {
     while (true) {
         for (let pet of Pets) {
