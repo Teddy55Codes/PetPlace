@@ -1,6 +1,6 @@
 const CatMovementIntervalInMs = 10;
 const CatMovementPerIntervalInPx = 1;
-const CatStopsPxFromTheCursor = 0;
+const CatStopsPxFromTheCursor = 50;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -68,6 +68,27 @@ function getXYSpeed(currentX, currentY, destinationX, destinationY) {
     return {RationX, RationY};
 }
 
+function TryMove(currentX, currentY, targetX, targetY) {
+    let currentRect = new DOMRect(currentX, currentY, CatWidth, CatHeight);
+    let futureRect = new DOMRect(targetX.substring(0, targetX.length - 2), targetY.substring(0, targetY.length - 2), CatWidth, CatHeight)
+    let MoveX = targetX;
+    let MoveY = targetY;
+    for (let catDiv of document.getElementsByClassName("cat")) {
+        let rect = catDiv.getBoundingClientRect();
+        if (rect.x === currentRect.x && rect.y === currentRect.y) continue;
+        if (((futureRect.top > rect.top && futureRect.top < rect.bottom) ||
+            futureRect.bottom < rect.bottom && futureRect.bottom > rect.top) &&
+            ((futureRect.left > rect.left && futureRect.left < rect.right) ||
+                futureRect.right < rect.right && futureRect.right > rect.left)) {
+            MoveY = currentRect.top+(CatHeight/2);
+            MoveX = currentRect.left+(CatWidth/2);
+        }
+    }
+    return {MoveX, MoveY};
+
+
+}
+
 (async function() {
     while (true) {
         for (let catDiv of document.getElementsByClassName("cat")) {
@@ -75,19 +96,24 @@ function getXYSpeed(currentX, currentY, destinationX, destinationY) {
             let centerX = rect.x + (CatWidth/2);
             let centerY = rect.y + (CatHeight/2);
             let {RationX, RationY} = getXYSpeed(centerX, centerY, XCord, YCord);
+            let FutureX;
+            let FutureY;
 
             if ((Math.abs(XCord - centerX) + Math.abs(YCord - centerY)) < CatStopsPxFromTheCursor) continue;
             if (XCord > centerX) {
-                catDiv.style.left = (rect.x + (CatMovementPerIntervalInPx*RationX)) + 'px';
+                FutureX = (rect.x + (CatMovementPerIntervalInPx*RationX)) + 'px';
             } else if (XCord < centerX) {
-                catDiv.style.left = (rect.x - (CatMovementPerIntervalInPx*RationX)) + 'px';
+                FutureX = (rect.x - (CatMovementPerIntervalInPx*RationX)) + 'px';
+            }
+            if (YCord > centerY) {
+                FutureY = (rect.y + (CatMovementPerIntervalInPx*RationY)) + 'px';
+            } else if (YCord < centerY) {
+                FutureY = (rect.y - (CatMovementPerIntervalInPx*RationY)) + 'px';
             }
 
-            if (YCord > centerY) {
-                catDiv.style.top = (rect.y + (CatMovementPerIntervalInPx*RationY)) + 'px';
-            } else if (YCord < centerY) {
-                catDiv.style.top = (rect.y - (CatMovementPerIntervalInPx*RationY)) + 'px';
-            }
+            let {MoveX, MoveY} = TryMove(rect.x, rect.y, FutureX, FutureY)
+            catDiv.style.left = MoveX;
+            catDiv.style.top = MoveY;
         }
         await delay(CatMovementIntervalInMs);
     }
