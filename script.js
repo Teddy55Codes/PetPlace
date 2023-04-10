@@ -1,6 +1,8 @@
 const CatMovementIntervalInMs = 10;
 const CatMovementPerIntervalInPx = 1;
 const CatStopsPxFromTheCursor = 50;
+const CatAnimationSlowdown = 10;
+const MaxSpawnRetries = 100;
 
 const CatHeight = 50;
 const CatWidth = 50;
@@ -10,9 +12,14 @@ let YCord = 0;
 
 let Pets = [];
 
+const PetMovingStates = ["./resources/CatStanding.png", "./resources/CatMoving.png"]
+
 class Pet {
     constructor() {
         const div = document.createElement("div");
+        this.imgState = 0;
+        this.animationStepper = 0;
+        this.animationSlowdown = CatAnimationSlowdown;
 
         div.className = "cat";
         div.style = "background-color: red;";
@@ -25,7 +32,7 @@ class Pet {
         let SpawnPositionY;
         let iteration = 0;
         while (isColliding) {
-            if (iteration >= 100) {
+            if (iteration >= MaxSpawnRetries) {
                 div.remove();
                 return null;
             }
@@ -39,7 +46,7 @@ class Pet {
         div.style.top = SpawnPositionY + "px";
         let img = document.createElement("img");
         img.className = "catImage";
-        img.src = "./resources/CatStanding.png";
+        img.src = PetMovingStates[0];
         div.appendChild(img);
         this.div = div;
     }
@@ -48,6 +55,19 @@ class Pet {
     }
     set divElement(div) {
         this.div = div;
+    }
+
+    Animate() {
+        if (this.animationStepper % this.animationSlowdown === 0) {
+            this.imgState++;
+            this.div.getElementsByClassName("catImage")[0].src = PetMovingStates[this.imgState % PetMovingStates.length];
+        }
+        this.animationStepper++;
+    }
+
+    StopMoveAnimation() {
+        this.imgState = 0;
+        this.div.getElementsByClassName("catImage")[0].src = PetMovingStates[0];
     }
 }
 
@@ -157,7 +177,12 @@ function TryMove(currentX, currentY, targetX, targetY) {
             let FutureX;
             let FutureY;
 
-            if ((Math.abs(XCord - centerX) + Math.abs(YCord - centerY)) < CatStopsPxFromTheCursor) continue;
+            if ((Math.abs(XCord - centerX) + Math.abs(YCord - centerY)) < CatStopsPxFromTheCursor)
+            {
+                pet.StopMoveAnimation();
+                continue;
+            }
+
             if (XCord > centerX) {
                 FutureX = (rect.x + (CatMovementPerIntervalInPx*RationX));
             } else if (XCord < centerX) {
@@ -170,9 +195,12 @@ function TryMove(currentX, currentY, targetX, targetY) {
             }
 
             let {MoveX, MoveY} = TryMove(rect.x, rect.y, FutureX, FutureY)
-
             if (MoveX != null) catDiv.style.left = MoveX + "px";
             if (MoveY != null) catDiv.style.top = MoveY + "px";
+
+            if (MoveX != null || MoveY != null) {
+                pet.Animate();
+            }
         }
         await delay(CatMovementIntervalInMs);
     }
