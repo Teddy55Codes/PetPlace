@@ -260,7 +260,7 @@ function CreateGrass() {
     }
 
     if (window.innerHeight > grassDivHeight) grassDiv.style.height = window.innerHeight + "px";
-    if (window.innerHeight > grassDivWidth) grassDiv.style.width = window.innerWidth + "px";
+    if (window.innerWidth > grassDivWidth) grassDiv.style.width = window.innerWidth + "px";
 }
 
 // grass initial spawn
