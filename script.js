@@ -138,8 +138,6 @@ class Pet {
                 (doc && doc.clientTop  || body && body.clientTop  || 0 );
         }
 
-        let positionText = document.getElementById("position");
-        positionText.innerText = event.pageX + "/" + event.pageY;
         XCord = event.pageX;
         YCord = event.pageY;
     }
