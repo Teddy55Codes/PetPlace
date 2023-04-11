@@ -5,3 +5,20 @@ body {
 .grassPatch {
     z-index: -1;
 }
+
+#ProgressbarContainer {
+    height: 10px;
+    width: 100px;
+    border-style: solid;
+    border-color: black;
+    position: absolute;
+    top: 35px;
+}
+
+#ProgressbarContent {
+    height: 10px;
+    width: 0;
+    position: absolute;
+    top: 38px;
+    left: 11px;
+}
