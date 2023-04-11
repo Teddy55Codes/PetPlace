@@ -8,8 +8,8 @@ const MinSpeedFractionForAnimation = 0.2;
 const AnimationSpeedInMs = 1000;
 const PixelsPerGrassPatch = 3000;
 
-const CatHeight = 50;
-const CatWidth = 50;
+const CatBoundingBoxHeight = 35;
+const CatBoundingBoxWidth = 35;
 
 let XCord = 0;
 let YCord = 0;
@@ -54,8 +54,8 @@ class Pet {
         this.currentNonMovementIntervals = 0;
 
         div.className = "cat";
-        div.style.width = CatHeight + "px";
-        div.style.height = CatWidth + "px";
+        div.style.width = CatBoundingBoxHeight + "px";
+        div.style.height = CatBoundingBoxWidth + "px";
         div.style.position = 'absolute';
         document.body.appendChild(div);
         let isColliding = true;
@@ -67,7 +67,7 @@ class Pet {
                 div.remove();
                 return null;
             }
-            let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth-CatWidth), getRandom(0, window.innerHeight-CatHeight))
+            let {MoveX, MoveY, hasCollision} = TryMove(0, 0, getRandom(0, window.innerWidth-CatBoundingBoxWidth), getRandom(0, window.innerHeight-CatBoundingBoxHeight))
             isColliding = hasCollision;
             SpawnPositionX = MoveX;
             SpawnPositionY = MoveY;
@@ -77,6 +77,7 @@ class Pet {
         div.style.top = SpawnPositionY + "px";
         let img = document.createElement("img");
         img.className = "catImage";
+        img.alt = "cute cat uwu";
         img.src = CatMovingStates[0];
         img.addEventListener("click", this.OnPetting.bind(this), false)
         div.appendChild(img);
@@ -188,10 +189,10 @@ function BoundingBoxCollision(rect1, rect2) {
 }
 
 function TryMove(currentX, currentY, targetX, targetY) {
-    let currentRect = new DOMRect(currentX, currentY, CatWidth, CatHeight);
-    let futureRectXY = new DOMRect(targetX, targetY, CatWidth, CatHeight);
-    let futureRectX = new DOMRect(targetX, currentY, CatWidth, CatHeight);
-    let futureRectY = new DOMRect(currentX, targetY, CatWidth, CatHeight);
+    let currentRect = new DOMRect(currentX, currentY, CatBoundingBoxWidth, CatBoundingBoxHeight);
+    let futureRectXY = new DOMRect(targetX, targetY, CatBoundingBoxWidth, CatBoundingBoxHeight);
+    let futureRectX = new DOMRect(targetX, currentY, CatBoundingBoxWidth, CatBoundingBoxHeight);
+    let futureRectY = new DOMRect(currentX, targetY, CatBoundingBoxWidth, CatBoundingBoxHeight);
 
     let MoveX = targetX;
     let MoveY = targetY;
@@ -266,8 +267,8 @@ function CreateGrass() {
         for (let pet of Pets) {
             let catDiv = pet.divElement;
             let rect = catDiv.getBoundingClientRect();
-            let centerX = rect.x + (CatWidth/2);
-            let centerY = rect.y + (CatHeight/2);
+            let centerX = rect.x + (CatBoundingBoxWidth/2);
+            let centerY = rect.y + (CatBoundingBoxHeight/2);
             let {RationX, RationY} = getXYSpeed(centerX, centerY, XCord, YCord);
             let FutureX;
             let FutureY;
