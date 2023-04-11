@@ -10,6 +10,7 @@ const PixelsPerGrassPatch = 3000;
 
 const CatBoundingBoxHeight = 35;
 const CatBoundingBoxWidth = 35;
+const CatProgressbarLimit = 50;
 
 let XCord = 0;
 let YCord = 0;
@@ -21,6 +22,8 @@ const CatRestingStates = ["resources/cat/CatResting.png"];
 const CatPettingAnimationSteps = ["resources/cat/CatRestingWithHeart.png"];
 
 const GrassTextures = ["resources/environment/Grass1.png", "resources/environment/Grass2.png"];
+
+SetProgressbarValue(0);
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -79,8 +82,9 @@ class Pet {
         img.className = "catImage";
         img.alt = "cute cat uwu";
         img.src = CatMovingStates[0];
-        img.addEventListener("click", this.OnPetting.bind(this), false)
+        img.addEventListener("click", this.OnPetting.bind(this), false);
         div.appendChild(img);
+        SetProgressbarValue(Pets.length);
         this.div = div;
     }
 
@@ -113,6 +117,20 @@ class Pet {
 
     EvaluateDirection(PetX, PetY, CursorX, CursorY) {
         this.div.getElementsByClassName("catImage")[0].style.transform = (PetX - CursorX) > 0  ? "" : "scaleX(-1)";
+    }
+}
+
+function SetProgressbarValue(value) {
+    let progressbarContent = document.getElementById("ProgressbarContent");
+    let catCountText = document.getElementById("CatCount");
+    catCountText.innerText = Pets.length + " / " + CatProgressbarLimit + " Cats";
+    progressbarContent.style.width = ((100 / CatProgressbarLimit) * value) + "px";
+    if ((value / CatProgressbarLimit) <= 0.5) {
+        progressbarContent.style.backgroundColor = "green";
+    } else if ((value / CatProgressbarLimit) <= 0.8) {
+        progressbarContent.style.backgroundColor = "yellow";
+    } else {
+        progressbarContent.style.backgroundColor = "red";
     }
 }
 

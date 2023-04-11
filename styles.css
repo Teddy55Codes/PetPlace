@@ -6,11 +6,16 @@ body {
     z-index: -1;
 }
 
+.UIElement {
+    z-index: 1;
+}
+
 #ProgressbarContainer {
     height: 10px;
     width: 100px;
     border-style: solid;
     border-color: black;
+    background-color: #3aa612;
     position: absolute;
     top: 35px;
 }
@@ -21,4 +26,9 @@ body {
     position: absolute;
     top: 38px;
     left: 11px;
+}
+
+#CatCount {
+    margin-top: 22px;
+    margin-bottom: 0;
 }
